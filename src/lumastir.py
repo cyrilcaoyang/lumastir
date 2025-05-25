@@ -38,7 +38,7 @@ class LumaController:
     def set_motor_speed(self, channel, speed):
         """Control motor speed (0-100%)"""
         if channel in self.motor_channels:
-            duty_cycle = round(speed * 4095 / 100)  # Convert % to 12-bit value
+            duty_cycle = round(speed * 65535 / 100)  # Convert % to 12-bit value
             self.pca.channels[channel].duty_cycle = duty_cycle
 
     def blink_led(self, led_pin, duration=0.5):
@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
         # Demonstration of three LEDs
         print("Starting blinking test!")
-        for i in range(0, 3):
+        for i in range(0, 2):
             for pin in LED_PINS:
                 controller.blink_led(pin)
 
