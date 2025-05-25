@@ -24,7 +24,7 @@ class LumaController:
         # Motor Setup (PCA9685)
         self.i2c = busio.I2C(board.SCL, board.SDA)
         self.pca = PCA9685(self.i2c)
-        self.pca.frequency = 1000  # 1 kHz for motors
+        self.pca.frequency = 500  # 500 Hz for motors
         self.motor_channels = motor_channels
 
         # Initialize motors to off
@@ -38,8 +38,8 @@ class LumaController:
     def set_motor_speed(self, channel, speed):
         """Control motor speed (0-100%)"""
         if channel in self.motor_channels:
-            duty_cycle = int(speed * 4095 / 100)  # Convert % to 12-bit value
-            self.pca.channels[channel].duty_cycle = min(duty_cycle, 0xFFF)
+            duty_cycle = round(speed * 4095 / 100)  # Convert % to 12-bit value
+            self.pca.channels[channel].duty_cycle = duty_cycle
 
     def blink_led(self, led_pin, duration=0.5):
         """Simple blink function for LEDs"""
@@ -66,18 +66,22 @@ if __name__ == "__main__":
         controller = LumaController(LED_PINS, MOTOR_CHANNELS)
 
         # Demonstration of three LEDs
-        for i in range(0, 2):
+        print("Starting blinking test!")
+        for i in range(0, 3):
             for pin in LED_PINS:
                 controller.blink_led(pin)
 
         # Demonstration of motors with LED on
         for vial_loc in [0, 1, 2]:
             controller.set_led_brightness(LED_PINS[vial_loc], 100)
-            time.sleep(1)
+            time.sleep(0.5)
             controller.set_motor_speed(MOTOR_CHANNELS[vial_loc], 100)
-            time.sleep(3)
+            time.sleep(5)
             controller.set_motor_speed(MOTOR_CHANNELS[vial_loc], 0)
+            controller.set_led_brightness(LED_PINS[vial_loc],0)
+            time.sleep(0.5)
             print(f"Finished demo on vial location {vial_loc}.")
+            controller.stop_all_motors()
 
     except KeyboardInterrupt:
         controller.cleanup()
